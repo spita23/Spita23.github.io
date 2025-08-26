@@ -14,14 +14,15 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    var vertices = new Float32Array([ -0.2,  0.4,
-                                      -0.8,  0.4,
-                                      -0.8,  0.8,
-                                       0.8,  0.8,
-                                       0.8,  0.4,
-                                       0.2,  0.4,
-                                       0.2, -0.8,
-                                      -0.2, -0.8]);
+    var vertices = new Float32Array([   -0.2,  -0.8, //BOTTOM LEFT vertbar
+                                         0.2,  -0.8, //BOTTOM RIGHT vertbar
+                                        -0.2,   0.4, //middle left vertbar
+                                         0.2,   0.4, //middle right vertbar
+                                        -0.8,   0.4, //bottom left horbar
+                                         0.8,   0.4, //bottom right horbar
+                                        -0.8,   0.8, //top left horbar
+                                         0.8,   0.8  //top right horbar
+                                     ]);
 
     //  Configure WebGL
 
@@ -51,5 +52,6 @@ window.onload = function init()
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.TRIANGLE_FAN, 0, 8 );
+    gl.drawArrays( gl.TRIANGLE_STRIP, 0, 8 );
+//Tristrip work like this: first triangle is 0,1,2 then next is 1,2,3 then next is 2,3,4 then next is 3,4,5 etc
 }
