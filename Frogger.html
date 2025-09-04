@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Frogger Game</title>
+        <style>
+            body { text-align: center; }
+            #score { margin-top: 10px; font-size: 20px;}
+            #gameOver { margin-top: 10px; font-size: 24px; color: red; display: none; }
+            #position { margin-top: 5px; font-size: 16px; }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas" width="1200" height="600" style="border:1px solid black;"></canvas>
+        <div id="score">Score: 0</div>
+        <div id="gameOver">Game Over! Score: <span id="finalScore"></span></div>
+        <div id="position">Position: (x: 0.00, y: -0.90)</div>
+        <script src="Frogger.js"></script>
+        <script>
+           // Initialize WebGL and start the game
+        const canvas = document.getElementById('canvas');
+        const gl = canvas.getContext('webgl');
+        if (!gl) {
+            alert('WebGL not supported');
+            throw new Error('WebGL not supported');
+        }
+        initWebGL(gl);
+        </script>
+    </body>
+</html>
