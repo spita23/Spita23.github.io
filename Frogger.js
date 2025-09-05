@@ -236,8 +236,3 @@ function initWebGL(gl) {
     // Start the render loop
     const animationFrameId = requestAnimationFrame(render);
 }
-
-// Export for potential module use (optional, if using modules later)
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { initWebGL };
-}
