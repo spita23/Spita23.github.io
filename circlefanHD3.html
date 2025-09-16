@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+uniform float time;
+attribute vec4 vPosition;
+
+void main()
+{
+   vec4 t = vPosition;
+    
+    t.y = t.y + 0.2 * sin(0.003 * time + 4.0 * t.x);
+    
+    gl_Position = t;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+uniform vec4 rcolor;
+
+void main()
+{
+    gl_FragColor = rcolor;
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="circlefanHD3.js"></script>
+
+<body>
+    <input id="slider" type="range" min="3" max="100" value="20" />
+<canvas id="gl-canvas" width="512" height="512">>
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>
