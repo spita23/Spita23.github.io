@@ -7,6 +7,7 @@
 <script id="vertex-shader" type="x-shader/x-vertex">
 uniform float time;
 attribute vec4 vPosition;
+varying vec4 vColor;
 
 void main()
 {
@@ -15,17 +16,26 @@ void main()
 
     tpos.y = 1.0 - mod(0.001*time + tpos.y+1.0, 2.0);
 
+    // islenski faninn
+    if (abs(tpos.x) < 0.1 || abs(tpos.y) < 0.1) {
+        vColor = vec4(1.0, 0.0, 0.0, 1.0); // Rautt 
+    } else if (abs(tpos.x) < 0.2 || abs(tpos.y) < 0.2) {
+        vColor = vec4(1.0, 1.0, 1.0, 1.0); // Hvítt 
+    } else {
+        vColor = vec4(0.0, 0.0, 0.5, 1.0); // Blátt 
+    }
+
     gl_Position = tpos;
-    
 }
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
+varying vec4 vColor;
 
 void main()
 {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_FragColor = vColor;
 }
 </script>
 
