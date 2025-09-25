@@ -129,6 +129,7 @@ function render()
     mv = mult( mv, rotateX(spinX) );
     mv = mult( mv, rotateY(spinY) ) ;
 
+    // Draw each part of the H
     // Left side
     var mv1 = mult( mv, translate( -0.45, 0.0, 0.0 ) );
     mv1 = mult( mv1, scalem( 0.1, 1.0, 0.2 ) );
