@@ -282,6 +282,7 @@ window.onload = function init()
         }
     });
 
+    //locks the mouse to the canvas when clicked
     canvas.addEventListener("click", function() {
     if (view === 0) {
         canvas.requestPointerLock();
