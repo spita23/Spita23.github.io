@@ -335,8 +335,8 @@ function render()
     carDirection += 1.0;
     if ( carDirection > 360.0 ) carDirection = 0.0;
 
-    carXPos = TRACK_RADIUS * Math.sin( radians(carDirection) );
-    carYPos = TRACK_RADIUS * Math.cos( radians(carDirection) );
+    carXPos = (TRACK_RADIUS+5) * Math.sin( radians(carDirection) );
+    carYPos = (TRACK_RADIUS+5) * Math.cos( radians(carDirection) );
 
     // Update car 2 position
     car2Direction += -1.0;
