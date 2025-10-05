@@ -282,6 +282,11 @@ window.onload = function init()
         }
     });
 
+    canvas.addEventListener("click", function() {
+    if (view === 0) {
+        canvas.requestPointerLock();
+    }
+});
 
     render();
 }
