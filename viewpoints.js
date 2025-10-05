@@ -26,6 +26,7 @@ var GREEN = vec4(0.0, 1.0, 0.0, 1.0);
 var YELLOW = vec4(1.0, 1.0, 0.0, 1.0);
 var BROWN = vec4(0.5, 0.25, 0.0, 1.0);
 var LIGHTBLUE = vec4(0.5, 1.0, 1.0, 1.0);
+var BLACK = vec4(0.0, 0.0, 0.0, 1.0);
 
 var numCubeVertices  = 36;
 var numPyramidVertices  = 12;
@@ -280,6 +281,24 @@ function house( x, y, type, size, mv ) {
     }
 }
 
+function drawBridge( theta, mv ) {
+    var x = TRACK_RADIUS * Math.cos(radians(theta));
+    var y = TRACK_RADIUS * Math.sin(radians(theta));
+    
+    // Rotate to align with track
+    var mv1 = mult(mv, translate(x, y, 0.0));
+    mv1 = mult(mv1, rotateZ(theta + 90));
+    
+    // Left pillar (inside track, radius < 90)
+    drawPrism(0.0, -15.0, 2.5, 10.0, 5.0, 8.0, BLACK, mv1);
+    
+    // Right pillar (outside track, radius > 110)
+    drawPrism(0.0, 15.0, 2.5, 10.0, 5.0, 8.0, BLACK, mv1);
+    
+    // Top slab (spans track, above cars)
+    drawPrism(0.0, 0.0, 8.0, 10.0, 35.0, 4.0, BLACK, mv1);
+}
+
 // draw the circular track and a few houses (i.e. red cubes)
 function drawScenery( mv ) {
 
@@ -297,6 +316,9 @@ function drawScenery( mv ) {
         var h = houses[i];
         house(h.x, h.y, h.type, h.size, mv);
     }
+
+    // Draw a bridge
+    drawBridge(90, mv);
 }
 
 
