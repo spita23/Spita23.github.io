@@ -48,6 +48,23 @@ var car2Direction = 180.0;
 var car2XPos = -95.0;
 var car2YPos = 0.0;
 
+// Variables for player viewpoint
+var playerPosX = 0.0;
+var playerPosY = 0.0;
+var playerDirX = 1.0;
+var playerDirY = 0.0;
+var playerYaw = 0.0; // horizontal look
+var moveSpeed = 1.0;
+var playerPitch = 0.0; // vertical look
+var playerDirZ = 0.0;
+
+var keys = {
+    w: false,
+    a: false,
+    s: false,
+    d: false
+};
+
 // current viewpoint
 var view = 1;
 
@@ -162,6 +179,10 @@ window.onload = function init()
     // Event listener for keyboard
     window.addEventListener("keydown", function(e){
         switch( e.keyCode ) {
+            case 48:    // 0: player viewpoint
+                view = 0;
+                document.getElementById("Viewpoint").innerHTML = "0: Sjónarhorn leikmanns";
+                break;
             case 49:	// 1: distant and stationary viewpoint
                 view = 1;
                 document.getElementById("Viewpoint").innerHTML = "1: Fjarlægt sjónarhorn";
@@ -205,6 +226,62 @@ window.onload = function init()
                 break;
         }
     } );
+
+    // Event listener for WASD
+    window.addEventListener("keydown", function(e){
+        switch( e.keyCode ) {
+            case 87:
+                keys.w = true;
+                break;
+            case 65:
+                keys.a = true;
+                break;
+            case 83:
+                keys.s = true;
+                break;
+            case 68:
+                keys.d = true;
+                break;
+        }
+    });
+
+    window.addEventListener("keyup", function(e){
+        switch( e.keyCode ) {
+            case 87:
+                keys.w = false;
+                break;
+            case 65:
+                keys.a = false;
+                break;
+            case 83:
+                keys.s = false;
+                break;
+            case 68:
+                keys.d = false;
+                break;
+        }
+    });
+
+    // Event listener for mouse movement
+    window.addEventListener("mousemove", function(e){
+        if (view == 0) {
+            // horizontal
+            playerYaw -= e.movementX * 0.4; 
+            if (playerYaw < 0) playerYaw += 360;
+            if (playerYaw >= 360) playerYaw -= 360;
+
+            // vertical
+            playerPitch -= e.movementY * 0.4;
+            if (playerPitch > 89) playerPitch = 89;
+            if (playerPitch < -89) playerPitch = -89;
+            
+            var cosPitch = Math.cos(radians(playerPitch));
+            playerDirX = Math.cos(radians(playerYaw)) * cosPitch;
+            playerDirY = Math.sin(radians(playerYaw)) * cosPitch;
+            playerDirZ = Math.sin(radians(playerPitch));
+        }
+    });
+
 
     render();
 }
@@ -366,8 +443,39 @@ function render()
     car2XPos = CAR2_RADIUS * Math.sin( radians(car2Direction) );
     car2YPos = CAR2_RADIUS * Math.cos( radians(car2Direction) );
 
+    // Update player position
+    if (view === 0) {
+        if (keys.w) {
+            playerPosX += playerDirX * moveSpeed;
+            playerPosY += playerDirY * moveSpeed;
+        }
+        if (keys.s) {
+            playerPosX -= playerDirX * moveSpeed;
+            playerPosY -= playerDirY * moveSpeed;
+        }
+        if (keys.d) {
+            playerPosX += playerDirY * moveSpeed;
+            playerPosY -= playerDirX * moveSpeed;
+        }
+        if (keys.a) {
+            playerPosX -= playerDirY * moveSpeed;
+            playerPosY += playerDirX * moveSpeed;
+        }
+    }
+
     var mv = mat4();
     switch( view ) {
+        case 0:
+            // Player viewpoint
+            mv = lookAt(
+                vec3(playerPosX, playerPosY, 5+height),
+                vec3(playerPosX + playerDirX, playerPosY + playerDirY, 5+height + playerDirZ),
+                vec3(0.0, 0.0, 1.0)
+            );
+            drawScenery( mv );
+            drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+            drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+            break;
         case 1:
             // Distant and stationary viewpoint
 	    mv = lookAt( vec3(250.0, 0.0, 100.0+height), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0) );
