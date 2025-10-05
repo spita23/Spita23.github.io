@@ -17,6 +17,7 @@ var TRACK_RADIUS = 100.0;
 var TRACK_INNER = 90.0;
 var TRACK_OUTER = 110.0;
 var TRACK_PTS = 100;
+var CAR2_RADIUS = 95.0;
 
 var BLUE = vec4(0.0, 0.0, 1.0, 1.0);
 var RED = vec4(1.0, 0.0, 0.0, 1.0);
@@ -42,6 +43,9 @@ var carDirection = 0.0;
 var carXPos = 100.0;
 var carYPos = 0.0;
 var height = 0.0;
+var car2Direction = 180.0;
+var car2XPos = -95.0;
+var car2YPos = 0.0;
 
 // current viewpoint
 var view = 1;
@@ -297,26 +301,27 @@ function drawScenery( mv ) {
 
 
 // draw car as two blue cubes
-function drawCar( mv ) {
+function drawCar(x, y, angle, color, mv ) {
 
     // set color to blue
-    gl.uniform4fv( colorLoc, BLUE );
+    gl.uniform4fv( colorLoc, color );
     
     gl.bindBuffer( gl.ARRAY_BUFFER, cubeBuffer );
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
 
     var mv1 = mv;
-    // lower body of the car
-    mv = mult( mv, scalem( 10.0, 3.0, 2.0 ) );
-    mv = mult( mv, translate( 0.0, 0.0, 0.5 ) );
+    mv1 = mult( mv1, translate( x, y, 0.0 ) );
+    mv1 = mult( mv1, rotateZ( angle ) );
 
-    gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+    // Lower body of the car
+    var mv2 = mult( mv1, scalem( 10.0, 3.0, 2.0 ) );
+    mv2 = mult( mv2, translate( 0.0, 0.0, 0.5 ) );
+    gl.uniformMatrix4fv(mvLoc, false, flatten(mv2));
     gl.drawArrays( gl.TRIANGLES, 0, numCubeVertices );
 
-    // upper part of the car
+    // Upper part of the car
     mv1 = mult( mv1, scalem( 4.0, 3.0, 2.0 ) );
     mv1 = mult( mv1, translate( -0.2, 0.0, 1.5 ) );
-
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv1));
     gl.drawArrays( gl.TRIANGLES, 0, numCubeVertices );
 }
@@ -326,11 +331,18 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    carDirection += 3.0;
+    // Update car 1 position
+    carDirection += 1.0;
     if ( carDirection > 360.0 ) carDirection = 0.0;
 
     carXPos = TRACK_RADIUS * Math.sin( radians(carDirection) );
     carYPos = TRACK_RADIUS * Math.cos( radians(carDirection) );
+
+    // Update car 2 position
+    car2Direction += -1.0;
+    if ( car2Direction < 0.0 ) car2Direction += 360.0;
+    car2XPos = CAR2_RADIUS * Math.sin( radians(car2Direction) );
+    car2YPos = CAR2_RADIUS * Math.cos( radians(car2Direction) );
 
     var mv = mat4();
     switch( view ) {
@@ -338,66 +350,68 @@ function render()
             // Distant and stationary viewpoint
 	    mv = lookAt( vec3(250.0, 0.0, 100.0+height), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0) );
 	    drawScenery( mv );
-	    mv = mult( mv, translate( carXPos, carYPos, 0.0 ) );
-	    mv = mult( mv, rotateZ( -carDirection ) ) ;
-	    drawCar( mv );
+	    drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+        drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
 	    break;
 	case 2:
 	    // Static viewpoint inside the track; camera follows car
 	    mv = lookAt( vec3(75.0, 0.0, 5.0+height), vec3(carXPos, carYPos, 0.0), vec3(0.0, 0.0, 1.0 ) );
 	    drawScenery( mv );
-	    mv = mult( mv, translate(carXPos, carYPos, 0.0) );
-	    mv = mult( mv, rotateZ( -carDirection ) ) ;
-	    drawCar( mv );
+	    drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+        drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
 	    break;
 	case 3:
 	    // Static viewpoint outside the track; camera follows car
 	    mv = lookAt( vec3(125.0, 0.0, 5.0+height), vec3(carXPos, carYPos, 0.0), vec3(0.0, 0.0, 1.0 ) );
 	    drawScenery( mv );
-	    mv = mult( mv, translate(carXPos, carYPos, 0.0) );
-	    mv = mult( mv, rotateZ( -carDirection ) ) ;
-	    drawCar( mv );
+	    drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+        drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
 	    break;
 	case 4:
 	    // Driver's point of view.
 	    mv = lookAt( vec3(-3.0, 0.0, 5.0+height), vec3(12.0, 0.0, 2.0+height), vec3(0.0, 0.0, 1.0 ) );
-	    drawCar( mv );
 	    mv = mult( mv, rotateZ( carDirection ) );
 	    mv = mult( mv, translate(-carXPos, -carYPos, 0.0) );
 	    drawScenery( mv );
+        drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+        drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
 	    break;
 	case 5:
 	    // Drive around while looking at a house at (40, 120)
 	    mv = rotateY( -carDirection );
 	    mv = mult( mv, lookAt( vec3(3.0, 0.0, 5.0+height), vec3(40.0-carXPos, 120.0-carYPos, 0.0), vec3(0.0, 0.0, 1.0 ) ) );
-	    drawCar( mv );
 	    mv = mult( mv, rotateZ( carDirection ) );
 	    mv = mult( mv, translate(-carXPos, -carYPos, 0.0) );
 	    drawScenery( mv );
+        drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+        drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
 	    break;
 	case 6:
 	    // Behind and above the car
 	    mv = lookAt( vec3(-12.0, 0.0, 6.0+height), vec3(15.0, 0.0, 4.0), vec3(0.0, 0.0, 1.0 ) );
-	    drawCar( mv );
 	    mv = mult( mv, rotateZ( carDirection ) );
 	    mv = mult( mv, translate(-carXPos, -carYPos, 0.0) );
 	    drawScenery( mv );
+        drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+        drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
 	    break;
 	case 7:
 	    // View backwards looking from another car
 	    mv = lookAt( vec3(25.0, 5.0, 5.0+height), vec3(0.0, 0.0, 2.0), vec3(0.0, 0.0, 1.0 ) );
-	    drawCar( mv );
 	    mv = mult( mv, rotateZ( carDirection ) );
 	    mv = mult( mv, translate(-carXPos, -carYPos, 0.0) );
 	    drawScenery( mv );
+        drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+        drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
 	    break;
 	case 8:
 	    // View from beside the car
 	    mv = lookAt( vec3(2.0, 20.0, 5.0+height), vec3(2.0, 0.0, 2.0), vec3(0.0, 0.0, 1.0 ) );
-	    drawCar( mv );
 	    mv = mult( mv, rotateZ( carDirection ) );
 	    mv = mult( mv, translate(-carXPos, -carYPos, 0.0) );
 	    drawScenery( mv );
+        drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
+        drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
 	    break;
 	    
     }
