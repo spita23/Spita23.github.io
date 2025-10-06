@@ -27,6 +27,7 @@ var YELLOW = vec4(1.0, 1.0, 0.0, 1.0);
 var BROWN = vec4(0.5, 0.25, 0.0, 1.0);
 var LIGHTBLUE = vec4(0.5, 1.0, 1.0, 1.0);
 var BLACK = vec4(0.0, 0.0, 0.0, 1.0);
+var SILVER = vec4(0.75, 0.75, 0.75, 1.0);
 
 var numCubeVertices  = 36;
 var numPyramidVertices  = 12;
@@ -47,6 +48,13 @@ var height = 0.0;
 var car2Direction = 180.0;
 var car2XPos = -95.0;
 var car2YPos = 0.0;
+
+// variables for plane
+var planeDir = 0.0;
+var planeX = 0.0;
+var planeY = 0.0;
+var planeZ = 50.0;
+var planeAngle = 0.0;
 
 // Variables for player viewpoint
 var playerPosX = 0.0;
@@ -430,7 +438,41 @@ function drawCar(x, y, angle, color, mv ) {
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv1));
     gl.drawArrays( gl.TRIANGLES, 0, numCubeVertices );
 }
+
+// draw plane as cubes
+function drawPlane(x, y, z, angle, color, mv ) {
+
+    gl.uniform4fv( colorLoc, color );
     
+    gl.bindBuffer( gl.ARRAY_BUFFER, cubeBuffer );
+    gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
+
+    var mv1 = mult(mv, translate(x, y, z));
+    mv1 = mult(mv1, rotateZ(angle));
+
+    // Body
+    var mv2 = mult( mv1, scalem( 10.0, 2.0, 2.0 ) );
+    gl.uniformMatrix4fv(mvLoc, false, flatten(mv2));
+    gl.drawArrays( gl.TRIANGLES, 0, numCubeVertices );
+
+    // Wings
+    mv2 = mult( mv1, translate(0.0, 0.0, 0.5) );
+    mv2 = mult( mv2, scalem( 2.0, 15.0, 0.5 ) );
+    gl.uniformMatrix4fv(mvLoc, false, flatten(mv2));
+    gl.drawArrays( gl.TRIANGLES, 0, numCubeVertices );
+
+    // Horizontal tail
+    mv2 = mult( mv1, translate(-4.0, 0.0, 1.0) );
+    mv2 = mult( mv2, scalem( 2.0, 6.0, 0.5 ) );
+    gl.uniformMatrix4fv(mvLoc, false, flatten(mv2));
+    gl.drawArrays( gl.TRIANGLES, 0, numCubeVertices );
+
+    // Vertical tail
+    mv2 = mult( mv1, translate(-4.0, 0.0, 2.0) );
+    mv2 = mult( mv2, scalem( 2.0, 0.5, 3.0 ) );
+    gl.uniformMatrix4fv(mvLoc, false, flatten(mv2));
+    gl.drawArrays( gl.TRIANGLES, 0, numCubeVertices );
+}   
 
 function render()
 {
@@ -448,6 +490,16 @@ function render()
     if ( car2Direction < 0.0 ) car2Direction += 360.0;
     car2XPos = CAR2_RADIUS * Math.sin( radians(car2Direction) );
     car2YPos = CAR2_RADIUS * Math.cos( radians(car2Direction) );
+
+    // Update plane position and angle
+    planeDir += 0.5;
+    if (planeDir >= 360.0) planeDir -= 360.0;
+    var thetaRad = radians(planeDir);
+    planeX = 100.0 * Math.cos(thetaRad);
+    planeY = 100.0 * Math.sin(thetaRad) * Math.cos(thetaRad);
+    var dx = -100.0 * Math.sin(thetaRad);
+    var dy = 100.0 * Math.cos(2 * thetaRad);
+    planeAngle = Math.atan2(dy, dx) * (180 / Math.PI);
 
     // Update player position
     if (view === 0) {
@@ -481,6 +533,7 @@ function render()
             drawScenery( mv );
             drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
             drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+            drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
             break;
         case 1:
             // Distant and stationary viewpoint
@@ -488,6 +541,7 @@ function render()
 	    drawScenery( mv );
 	    drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
         drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+        drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
 	    break;
 	case 2:
 	    // Static viewpoint inside the track; camera follows car
@@ -495,6 +549,7 @@ function render()
 	    drawScenery( mv );
 	    drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
         drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+        drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
 	    break;
 	case 3:
 	    // Static viewpoint outside the track; camera follows car
@@ -502,6 +557,7 @@ function render()
 	    drawScenery( mv );
 	    drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
         drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+        drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
 	    break;
 	case 4:
 	    // Driver's point of view.
@@ -511,6 +567,7 @@ function render()
 	    drawScenery( mv );
         drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
         drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+        drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
 	    break;
 	case 5:
 	    // Drive around while looking at a house at (40, 120)
@@ -521,6 +578,7 @@ function render()
 	    drawScenery( mv );
         drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
         drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+        drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
 	    break;
 	case 6:
 	    // Behind and above the car
@@ -530,6 +588,7 @@ function render()
 	    drawScenery( mv );
         drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
         drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+        drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
 	    break;
 	case 7:
 	    // View backwards looking from another car
@@ -539,6 +598,7 @@ function render()
 	    drawScenery( mv );
         drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
         drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+        drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
 	    break;
 	case 8:
 	    // View from beside the car
@@ -548,6 +608,7 @@ function render()
 	    drawScenery( mv );
         drawCar( carXPos, carYPos, -carDirection, BLUE, mv );
         drawCar( car2XPos, car2YPos, -car2Direction, RED, mv );
+        drawPlane( planeX, planeY, planeZ, planeAngle, SILVER, mv );
 	    break;
 	    
     }
