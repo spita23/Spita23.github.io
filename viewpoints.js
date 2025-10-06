@@ -314,7 +314,7 @@ function createTrack() {
     }
 }
 
-// Draw a rectangular prism at (x, y), base at z=baseZ, scaled (sX, sY, sZ), color col
+// Draw a rectangular prism
 function drawPrism( x, y, baseZ, sX, sY, sZ, col, mv ) {
     gl.uniform4fv( colorLoc, col );
     var mv1 = mult( mv, translate( x, y, baseZ ) );
@@ -325,7 +325,7 @@ function drawPrism( x, y, baseZ, sX, sY, sZ, col, mv ) {
     gl.drawArrays( gl.TRIANGLES, 0, numCubeVertices );
 }
 
-// Draw a pyramid at (x, y), base at z=baseZ, scaled (sX, sY, sZ), color col
+// Draw a pyramid
 function drawPyramid( x, y, baseZ, sX, sY, sZ, col, mv ) {
     gl.uniform4fv( colorLoc, col );
     var mv1 = mult( mv, translate( x, y, baseZ ) );
@@ -361,7 +361,7 @@ function houseType4( x, y, size, mv ) {
     drawPyramid(x, y, size, size, size, size / 2, BROWN, mv);
 }
 
-// draw a house in location (x, y) of size size
+// draw a house
 function house( x, y, type, size, mv ) {
     // Draw based on type
     switch(type) {
