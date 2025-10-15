@@ -51,6 +51,9 @@ var LOWER_ARM_WIDTH  = 0.5;
 var UPPER_ARM_HEIGHT = 5.0;
 var UPPER_ARM_WIDTH  = 0.5;
 
+var HAND_HEIGHT      = 1.0;
+var HAND_WIDTH       = 0.5;
+
 // Shader transformation matrices
 
 var modelViewMatrix, projectionMatrix;
@@ -61,8 +64,10 @@ var Base = 0;
 var LowerArm = 1;
 var UpperArm = 2;
 
+var Hand = 3;
 
-var theta= [ 0, 0, 0];
+
+var theta= [ 0, 0, 0, 0];
 
 var angle = 0;
 
@@ -202,13 +207,20 @@ window.onload = function init() {
 			    theta[1] = Math.min(80, theta[1]+5);
                 break;
             case 83:	// s - snýr neðri armi
-			    theta[1] = Math.max(-80, theta[1]-5);
+			    theta[1] = Math.max(0, theta[1]-5);
                 break;
             case 81:	// q - snýr efri armi
 			    theta[2] = Math.min(170, theta[2]+5);
                 break;
             case 87:	// w - snýr efri armi
-			    theta[2] = Math.max(-170, theta[2]-5);
+			    theta[2] = Math.max(0, theta[2]-5);
+                break;
+
+            case 69:	// e - snýr hönd
+                theta[3] = Math.min(179, theta[3]+5);
+                break;
+            case 82:	// r - snýr hönd
+                theta[3] = Math.max(0, theta[3]-5);
                 break;
          }
      }  );  
@@ -262,6 +274,16 @@ function lowerArm()
 
 //----------------------------------------------------------------------------
 
+function hand()
+{
+    var s = scalem(HAND_WIDTH, HAND_HEIGHT, HAND_WIDTH);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * HAND_HEIGHT, 0.0 ), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+}
+
+//----------------------------------------------------------------------------
 
 var render = function() {
 
@@ -282,6 +304,11 @@ var render = function() {
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0, LOWER_ARM_HEIGHT, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotateZ( theta[UpperArm] ) );
     upperArm();
+
+    // Hand
+    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, UPPER_ARM_HEIGHT, 0.0));
+    modelViewMatrix  = mult(modelViewMatrix, rotateZ( theta[Hand] ) );
+    hand();
 
     requestAnimFrame(render);
 }
