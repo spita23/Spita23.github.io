@@ -333,7 +333,7 @@ function checkFullLayers() {
         }
         if (full) {
             removeLayer(y);
-            score += GRID_WIDTH * GRID_DEPTH;
+            score += 1;
             document.getElementById('score').innerText = `Score: ${score}`;
             y--; // Re-check this layer
         }
