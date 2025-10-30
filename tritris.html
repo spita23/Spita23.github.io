@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tritris</title>
+    <style>
+        body { margin: 0; background: #000; }
+        canvas { display: block; }
+        #score { position: absolute; top: 10px; left: 10px; color: white; font-size: 20px; font-family: Arial; }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <script type="x-shader/x-vertex" id="vertex-shader">
+        attribute vec4 vPosition;
+        attribute vec4 vColor;
+        varying vec4 fColor;
+        uniform mat4 modelViewMatrix;
+        uniform mat4 projectionMatrix;
+        void main() {
+            gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+            fColor = vColor;
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fragment-shader">
+        precision mediump float;
+        varying vec4 fColor;
+        void main() {
+            gl_FragColor = fColor;
+        }
+    </script>
+    <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="../Common/initShaders.js"></script>
+    <script type="text/javascript" src="../Common/MV.js"></script>
+    <script type="text/javascript" src="tritris.js"></script>
+</body>
+</html>
